@@ -2,22 +2,14 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A desktop GUI for the [narrate-this](https://crates.io/crates/narrate-this) SDK. Configure providers, generate narrated videos from text or URLs, and track your history -- all from a native app.
+A desktop GUI for the [narrate-this](https://crates.io/crates/narrate-this) SDK. Configure providers, generate narrated videos from text or URLs with background music, captions, and stock or provided background media.
+
+[gui-vid.webm](https://github.com/user-attachments/assets/3145a784-5d68-4c11-82eb-c4e59c2c6660)
 
 Built with [Tauri 2](https://v2.tauri.app/) + TypeScript.
 
-## Features
-
-- **Build & Run** -- pick a content source (URL or raw text), choose TTS/media options, and generate a video in one click
-- **Provider management** -- add and configure ElevenLabs, OpenAI-compatible TTS, LLM, and Pexels providers with auto-saving
-- **Media options** -- Pexels stock footage with LLM keyword extraction, or a local image library with LLM-based matching
-- **Real-time progress** -- live pipeline stage updates while generating
-- **Generation history** -- browse past videos and open them directly
-
 ## Prerequisites
-
-- [Node.js](https://nodejs.org/) (LTS recommended)
-- [Rust](https://rustup.rs/) (stable toolchain)
+- Install from [releases](https://github.com/Alex-Kaff/narrate-this-gui/releases/) or clone source code and build or run dev
 - [FFmpeg](https://ffmpeg.org/) available on your `PATH` (see [Installing FFmpeg](#installing-ffmpeg))
 - API keys for the providers you want to use (configured in the app):
   - [ElevenLabs](https://elevenlabs.io/) or OpenAI-compatible TTS
