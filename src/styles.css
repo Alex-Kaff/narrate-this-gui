@@ -441,6 +441,11 @@
   color: #fbbf24;
 }
 
+.provider-badge.badge-firecrawl {
+  background: #1e2e3a;
+  color: #60a5fa;
+}
+
 .provider-delete {
   background: none;
   border: none;
@@ -620,4 +625,33 @@
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Track controls (background music) */
+.track-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.track-control input[type="range"] {
+  width: 70px;
+  height: 4px;
+  accent-color: #6c63ff;
+}
+
+.track-control input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #6c63ff;
+}
+
+.volume-label {
+  min-width: 30px;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #888;
 }

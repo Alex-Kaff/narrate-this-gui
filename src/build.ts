@@ -7,6 +7,7 @@ import type {
   TtsConfig,
   MediaConfig,
   FirecrawlConfig,
+  AudioTrackConfig,
 } from "./types";
 import { escapeHtml } from "./utils";
 
@@ -27,6 +28,7 @@ export interface BuildState {
   video_path: string;
   save_audio: boolean;
   audio_dir?: string;
+  audio_tracks: AudioTrackConfig[];
 }
 
 export function createDefaultBuildState(): BuildState {
@@ -47,6 +49,7 @@ export function createDefaultBuildState(): BuildState {
     video_path: "output.mp4",
     save_audio: false,
     audio_dir: undefined,
+    audio_tracks: [],
   };
 }
 
@@ -378,6 +381,11 @@ function renderOutputSection(el: HTMLElement, state: BuildState) {
         </div>
       </div>
     </div>
+    <div class="field">
+      <label>Background Music</label>
+      <div id="track-list"></div>
+      <button class="btn btn-secondary btn-small" id="btn-add-track">Add Track...</button>
+    </div>
   `;
 
   el.querySelector("#output-video")!.addEventListener("input", (e) => {
@@ -410,6 +418,72 @@ function renderOutputSection(el: HTMLElement, state: BuildState) {
 
   el.querySelector("#output-audio")?.addEventListener("input", (e) => {
     state.audio_dir = (e.target as HTMLInputElement).value || undefined;
+  });
+
+  renderTrackList(el.querySelector("#track-list")!, state.audio_tracks);
+
+  el.querySelector("#btn-add-track")!.addEventListener("click", async () => {
+    const selected = await open({
+      multiple: true,
+      filters: [{ name: "Audio", extensions: ["mp3", "wav", "ogg", "flac", "aac", "m4a"] }],
+    });
+    if (selected) {
+      const paths = Array.isArray(selected) ? selected : [selected];
+      for (const p of paths) state.audio_tracks.push({ path: p, volume: 0.15, loop_track: true });
+      renderTrackList(el.querySelector("#track-list")!, state.audio_tracks);
+    }
+  });
+}
+
+function renderTrackList(container: HTMLElement, tracks: AudioTrackConfig[]) {
+  if (tracks.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML = tracks
+    .map(
+      (t, i) => `
+    <div class="file-item" data-index="${i}">
+      <span class="file-name" title="${escapeHtml(t.path)}">${escapeHtml(t.path.split(/[\\/]/).pop() || "")}</span>
+      <label class="track-control">Vol
+        <input type="range" min="0" max="100" value="${Math.round(t.volume * 100)}" data-index="${i}" data-field="volume" />
+        <span class="volume-label">${Math.round(t.volume * 100)}%</span>
+      </label>
+      <label class="track-control">
+        <input type="checkbox" ${t.loop_track ? "checked" : ""} data-index="${i}" data-field="loop" />
+        Loop
+      </label>
+      <button class="btn-remove" data-index="${i}">&times;</button>
+    </div>
+  `
+    )
+    .join("");
+
+  container.querySelectorAll('input[data-field="volume"]').forEach((input) => {
+    input.addEventListener("input", (e) => {
+      const el = e.target as HTMLInputElement;
+      const idx = parseInt(el.dataset.index!);
+      tracks[idx].volume = parseInt(el.value) / 100;
+      const label = el.nextElementSibling as HTMLElement;
+      if (label) label.textContent = `${el.value}%`;
+    });
+  });
+
+  container.querySelectorAll('input[data-field="loop"]').forEach((input) => {
+    input.addEventListener("change", (e) => {
+      const el = e.target as HTMLInputElement;
+      const idx = parseInt(el.dataset.index!);
+      tracks[idx].loop_track = el.checked;
+    });
+  });
+
+  container.querySelectorAll(".btn-remove").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt((e.target as HTMLElement).dataset.index!);
+      tracks.splice(idx, 1);
+      renderTrackList(container, tracks);
+    });
   });
 }
 
@@ -460,6 +534,7 @@ export function buildGenerateConfig(state: BuildState, providers: Provider[]): G
     output: {
       video_path: state.video_path,
       audio_dir: state.save_audio ? state.audio_dir : undefined,
+      audio_tracks: state.audio_tracks.length > 0 ? state.audio_tracks : undefined,
     },
   };
 

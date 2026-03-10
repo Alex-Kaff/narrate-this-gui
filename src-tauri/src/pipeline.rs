@@ -1,5 +1,5 @@
 use narrate_this::{
-    ContentPipeline, ContentSource, ElevenLabsConfig, ElevenLabsTts, FfmpegRenderer,
+    AudioTrack, ContentPipeline, ContentSource, ElevenLabsConfig, ElevenLabsTts, FfmpegRenderer,
     FirecrawlScraper, FsAudioStorage, LlmMediaPlanner, MediaAsset, MediaFallback, OpenAiConfig,
     OpenAiKeywords, OpenAiTts, OpenAiTtsConfig, PexelsSearch, PipelineProgress,
     RenderConfig, StockMediaPlanner,
@@ -136,8 +136,24 @@ macro_rules! configure_pipeline {
             None => builder,
         };
 
+        let audio_tracks: Vec<AudioTrack> = $config
+            .output
+            .audio_tracks
+            .as_deref()
+            .unwrap_or(&[])
+            .iter()
+            .map(|t| {
+                let mut track = AudioTrack::new(&t.path).volume(t.volume);
+                if !t.loop_track {
+                    track = track.no_loop();
+                }
+                track
+            })
+            .collect();
+
         let render_config = RenderConfig {
             output_path: $config.output.video_path.clone(),
+            audio_tracks,
             ..Default::default()
         };
         let builder = builder.renderer(FfmpegRenderer::new(), render_config);
@@ -335,7 +351,15 @@ pub async fn run(
 }
 
 #[derive(Debug, Deserialize)]
+pub struct AudioTrackCfg {
+    pub path: String,
+    pub volume: f32,
+    pub loop_track: bool,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct OutputConfig {
     pub video_path: String,
     pub audio_dir: Option<String>,
+    pub audio_tracks: Option<Vec<AudioTrackCfg>>,
 }

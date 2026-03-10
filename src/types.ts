@@ -59,9 +59,16 @@ export interface MediaConfig {
   pexels_fallback?: PexelsFallback;
 }
 
+export interface AudioTrackConfig {
+  path: string;
+  volume: number;
+  loop_track: boolean;
+}
+
 export interface OutputConfig {
   video_path: string;
   audio_dir?: string;
+  audio_tracks?: AudioTrackConfig[];
 }
 
 export interface FirecrawlConfig {
