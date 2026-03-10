@@ -6,6 +6,13 @@ A desktop GUI for the [narrate-this](https://crates.io/crates/narrate-this) SDK.
 
 [gui-vid.webm](https://github.com/user-attachments/assets/3145a784-5d68-4c11-82eb-c4e59c2c6660)
 
+
+
+https://github.com/user-attachments/assets/c49167fa-5770-48c4-8b32-0aa7198d0a85
+
+
+
+
 Built with [Tauri 2](https://v2.tauri.app/) + TypeScript.
 
 ## Prerequisites
