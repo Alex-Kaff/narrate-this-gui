@@ -2268,7 +2268,7 @@ dependencies = [
 
 [[package]]
 name = "narrate-this-gui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "narrate-this",
  "rusqlite",

@@ -1,7 +1,7 @@
 export interface Provider {
   id: string;
   name: string;
-  type: "tts_elevenlabs" | "tts_openai" | "llm" | "pexels";
+  type: "tts_elevenlabs" | "tts_openai" | "llm" | "pexels" | "firecrawl";
   api_key?: string;
   base_url?: string;
   model?: string;
@@ -64,9 +64,14 @@ export interface OutputConfig {
   audio_dir?: string;
 }
 
+export interface FirecrawlConfig {
+  base_url: string;
+}
+
 export interface GenerateConfig {
   content: ContentConfig;
   tts: TtsConfig;
+  firecrawl?: FirecrawlConfig;
   enhancement?: EnhancementConfig;
   media?: MediaConfig;
   output: OutputConfig;

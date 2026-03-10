@@ -6,6 +6,7 @@ import type {
   GenerateConfig,
   TtsConfig,
   MediaConfig,
+  FirecrawlConfig,
 } from "./types";
 import { escapeHtml } from "./utils";
 
@@ -22,6 +23,7 @@ export interface BuildState {
   media_files: LocalMediaFile[];
   media_pexels_fallback: boolean;
   media_fallback_provider_id: string;
+  firecrawl_provider_id: string;
   video_path: string;
   save_audio: boolean;
   audio_dir?: string;
@@ -41,6 +43,7 @@ export function createDefaultBuildState(): BuildState {
     media_files: [],
     media_pexels_fallback: false,
     media_fallback_provider_id: "",
+    firecrawl_provider_id: "",
     video_path: "output.mp4",
     save_audio: false,
     audio_dir: undefined,
@@ -114,7 +117,7 @@ export function renderBuildTab(
   });
 
   // Render sections
-  renderContentSection(container.querySelector("#section-content")!, state);
+  renderContentSection(container.querySelector("#section-content")!, state, providers);
   renderTtsSection(container.querySelector("#section-tts")!, state, providers);
   renderEnhancementSection(container.querySelector("#section-enhancement")!, state, providers);
   renderMediaSection(container.querySelector("#section-media")!, state, providers);
@@ -123,7 +126,7 @@ export function renderBuildTab(
   container.querySelector("#btn-generate")!.addEventListener("click", onGenerate);
 }
 
-function renderContentSection(el: HTMLElement, state: BuildState) {
+function renderContentSection(el: HTMLElement, state: BuildState, providers: Provider[]) {
   el.innerHTML = `
     <div class="toggle-group" id="content-toggle">
       <button data-value="url" class="${state.content.type === "url" ? "active" : ""}">Article URL</button>
@@ -140,9 +143,16 @@ function renderContentSection(el: HTMLElement, state: BuildState) {
           <label>URL</label>
           <input type="url" id="content-url" placeholder="https://example.com/article" value="${escapeHtml(state.content.url || "")}" />
         </div>
+        <div class="field">
+          <label>Firecrawl Provider</label>
+          <select id="content-firecrawl">${providerOptions(providers, ["firecrawl"], state.firecrawl_provider_id)}</select>
+        </div>
       `;
       fields.querySelector("#content-url")!.addEventListener("input", (e) => {
         state.content.url = (e.target as HTMLInputElement).value;
+      });
+      fields.querySelector("#content-firecrawl")!.addEventListener("change", (e) => {
+        state.firecrawl_provider_id = (e.target as HTMLSelectElement).value;
       });
     } else {
       fields.innerHTML = `
@@ -411,6 +421,14 @@ export function buildGenerateConfig(state: BuildState, providers: Provider[]): G
   if (content.type === "url" && !content.url?.trim()) throw new Error("No URL provided");
   if (content.type === "text" && !content.text?.trim()) throw new Error("No text provided");
 
+  // Firecrawl (required for URL content)
+  let firecrawl: FirecrawlConfig | undefined;
+  if (content.type === "url") {
+    const fcP = find(state.firecrawl_provider_id);
+    if (!fcP) throw new Error("URL content requires a Firecrawl provider");
+    firecrawl = { base_url: fcP.base_url || "http://localhost:3002" };
+  }
+
   // TTS
   const ttsP = find(state.tts_provider_id);
   if (!ttsP) throw new Error("No TTS provider selected");
@@ -438,6 +456,7 @@ export function buildGenerateConfig(state: BuildState, providers: Provider[]): G
   const config: GenerateConfig = {
     content,
     tts,
+    firecrawl,
     output: {
       video_path: state.video_path,
       audio_dir: state.save_audio ? state.audio_dir : undefined,

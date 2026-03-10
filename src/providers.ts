@@ -6,6 +6,7 @@ const PROVIDER_TYPE_LABELS: Record<string, string> = {
   tts_openai: "OpenAI-Compatible TTS",
   llm: "LLM (OpenAI-Compatible)",
   pexels: "Pexels",
+  firecrawl: "Firecrawl",
 };
 
 const PROVIDER_TYPE_OPTIONS = Object.entries(PROVIDER_TYPE_LABELS);
@@ -163,6 +164,9 @@ function renderProviderFields(provider: Provider): string {
       break;
     case "pexels":
       fields += field("API Key", "api_key", "password");
+      break;
+    case "firecrawl":
+      fields += field("Base URL", "base_url", "text", "http://localhost:3002");
       break;
   }
 
